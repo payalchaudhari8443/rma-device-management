@@ -1,16 +1,28 @@
-from flask import Flask, request, jsonify, render_template, send_file
+
+import os
 import sqlite3
+import pandas as pd
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-import pandas as pd
-import os
+from flask import Flask, request, jsonify, render_template, send_file
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
+UPLOAD_FOLDER = 'uploads'
+ALLOWED_EXTENSIONS = {'xlsx'}
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# Ensure upload folder exists
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # Initialize SQLite database
 def init_db():
-    db_path = os.path.join(os.path.dirname(__file__), 'rma.db')
+    db_path = '/storage/rma.db' if os.environ.get('RENDER') else 'rma.db'
     conn = sqlite3.connect(db_path)
     c = conn.cursor()
     c.execute('''CREATE TABLE IF NOT EXISTS rma_requests (
@@ -48,7 +60,7 @@ def init_db():
 
 # Generate sequential RMA token
 def generate_rma_token():
-    db_path = os.path.join(os.path.dirname(__file__), 'rma.db')
+    db_path = '/storage/rma.db' if os.environ.get('RENDER') else 'rma.db'
     conn = sqlite3.connect(db_path)
     c = conn.cursor()
     c.execute("SELECT last_sequence FROM rma_sequence WHERE id = 1")
@@ -63,13 +75,13 @@ def generate_rma_token():
 # Send email with RMA token
 def send_rma_email(customer_email, issues_observed, device_serial_number, token_no):
     sender_email = "payal.chaudhari@messung.com"
-    sender_password = "fasmvqyajmbavkhr"
+    sender_password = "fasmvqyajmbavkhr"  # App-specific password
     subject = f"RMA Request Confirmation - Token No: {token_no}"
     body = f"""
 Dear Customer,
 
 Thank you for submitting an RMA request.
-Your request ticket (#{token_no} - {issues_observed} - Device Serial Number: {device_serial_number}) has been raised.
+Your request ticket (#{token_no} - {issues_observed} - Device Sr No: {device_serial_number}) has been raised.
 Your Token No is: {token_no}
 Please use this token for all communications regarding this repair.
 
@@ -95,7 +107,7 @@ Messung Systems Pvt. Ltd. (Ourican Automation)
 
 @app.route('/')
 def index():
-    db_path = os.path.join(os.path.dirname(__file__), 'rma.db')
+    db_path = '/storage/rma.db' if os.environ.get('RENDER') else 'rma.db'
     conn = sqlite3.connect(db_path)
     c = conn.cursor()
     c.execute("SELECT * FROM rma_requests")
@@ -128,7 +140,7 @@ def submit_rma():
     r3 = data.get('r3')
     customer_email = data.get('customer_email')
     token_no = rma
-    db_path = os.path.join(os.path.dirname(__file__), 'rma.db')
+    db_path = '/storage/rma.db' if os.environ.get('RENDER') else 'rma.db'
     conn = sqlite3.connect(db_path)
     c = conn.cursor()
     c.execute('''INSERT INTO rma_requests (
@@ -152,9 +164,68 @@ def submit_rma():
         'email_sent': email_sent
     })
 
+@app.route('/import_excel', methods=['POST'])
+def import_excel():
+    db_path = '/storage/rma.db' if os.environ.get('RENDER') else 'rma.db'
+    if 'excel_file' not in request.files:
+        return jsonify({'message': 'No file uploaded', 'success': False})
+    file = request.files['excel_file']
+    if file.filename == '':
+        return jsonify({'message': 'No file selected', 'success': False})
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(file_path)
+        try:
+            df = pd.read_excel(file_path, engine='openpyxl')
+            conn = sqlite3.connect(db_path)
+            c = conn.cursor()
+            for _, row in df.iterrows():
+                token_no = row.get('token_no', generate_rma_token())
+                c.execute("SELECT token_no FROM rma_requests WHERE token_no = ?", (token_no,))
+                if c.fetchone():
+                    continue  # Skip duplicates
+                c.execute('''INSERT OR IGNORE INTO rma_requests (
+                    month, date_of_issue, project, location, si_client, product, 
+                    device_serial_number, delivered_material_date, issues_observed, 
+                    emd_observation, solutions, replacement_dc_no, tested_by_messung_engineer, 
+                    rma, faulty_device_status, remark, device_status, r1, r2, r3, 
+                    token_no, customer_email
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',
+                          (str(row.get('month', '')) or None,
+                           str(row.get('date_of_issue', '')) or None,
+                           str(row.get('project', '')) or None,
+                           str(row.get('location', '')) or None,
+                           str(row.get('si_client', '')) or None,
+                           str(row.get('product', '')) or None,
+                           str(row.get('device_serial_number', '')) or None,
+                           str(row.get('delivered_material_date', '')) or None,
+                           str(row.get('issues_observed', '')) or None,
+                           str(row.get('emd_observation', '')) or None,
+                           str(row.get('solutions', '')) or None,
+                           str(row.get('replacement_dc_no', '')) or None,
+                           str(row.get('tested_by_messung_engineer', '')) or None,
+                           str(row.get('rma', token_no)) or None,
+                           str(row.get('faulty_device_status', '')) or None,
+                           str(row.get('remark', '')) or None,
+                           str(row.get('device_status', '')) or None,
+                           str(row.get('r1', '')) or None,
+                           str(row.get('r2', '')) or None,
+                           str(row.get('r3', '')) or None,
+                           token_no,
+                           str(row.get('customer_email', '')) or None))
+            conn.commit()
+            conn.close()
+            os.remove(file_path)
+            return jsonify({'message': 'Excel data imported successfully!', 'success': True})
+        except Exception as e:
+            os.remove(file_path)
+            return jsonify({'message': f'Error importing Excel: {str(e)}', 'success': False})
+    return jsonify({'message': 'Invalid file format', 'success': False})
+
 @app.route('/edit_rma/<token>', methods=['GET'])
 def edit_rma(token):
-    db_path = os.path.join(os.path.dirname(__file__), 'rma.db')
+    db_path = '/storage/rma.db' if os.environ.get('RENDER') else 'rma.db'
     conn = sqlite3.connect(db_path)
     c = conn.cursor()
     c.execute("SELECT * FROM rma_requests WHERE token_no = ?", (token,))
@@ -197,7 +268,7 @@ def update_rma(token):
     r2 = data.get('r2')
     r3 = data.get('r3')
     customer_email = data.get('customer_email')
-    db_path = os.path.join(os.path.dirname(__file__), 'rma.db')
+    db_path = '/storage/rma.db' if os.environ.get('RENDER') else 'rma.db'
     conn = sqlite3.connect(db_path)
     c = conn.cursor()
     c.execute('''UPDATE rma_requests SET
@@ -217,11 +288,21 @@ def update_rma(token):
     conn.close()
     return jsonify({'message': 'RMA updated successfully!'})
 
+@app.route('/delete_rma/<token>', methods=['POST'])
+def delete_rma(token):
+    db_path = '/storage/rma.db' if os.environ.get('RENDER') else 'rma.db'
+    conn = sqlite3.connect(db_path)
+    c = conn.cursor()
+    c.execute("DELETE FROM rma_requests WHERE token_no = ?", (token,))
+    conn.commit()
+    conn.close()
+    return jsonify({'message': 'RMA deleted successfully!'})
+
 @app.route('/search', methods=['POST'])
 def search_rma():
     search_term = request.form.get('search_term', '').strip()
     search_type = request.form.get('search_type', 'rma')
-    db_path = os.path.join(os.path.dirname(__file__), 'rma.db')
+    db_path = '/storage/rma.db' if os.environ.get('RENDER') else 'rma.db'
     conn = sqlite3.connect(db_path)
     c = conn.cursor()
     query = ""
@@ -245,7 +326,7 @@ def search_rma():
 
 @app.route('/export_excel')
 def export_excel():
-    db_path = os.path.join(os.path.dirname(__file__), 'rma.db')
+    db_path = '/storage/rma.db' if os.environ.get('RENDER') else 'rma.db'
     conn = sqlite3.connect(db_path)
     query = """SELECT month, date_of_issue, project, location, si_client, product, 
                       device_serial_number AS 'Device Serial Number', delivered_material_date, issues_observed, 
@@ -261,4 +342,4 @@ def export_excel():
 
 if __name__ == '__main__':
     init_db()
-    app.run(host='127.0.0.1', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)

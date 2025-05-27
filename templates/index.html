@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -44,6 +45,20 @@
         #content {
             display: none;
         }
+        .delete-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .delete-btn:hover {
+            background: #c0392b;
+        }
+        .import-section {
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -51,7 +66,7 @@
         <div>
             <h2>Enter Password</h2>
             <input type="password" id="passwordInput" placeholder="Password">
-            <button onclick="checkPassword()">Submit</button>
+            <button id="passwordSubmit">Submit</button>
             <p id="errorMessage" style="color: red; display: none;">Incorrect password!</p>
         </div>
     </div>
@@ -101,7 +116,7 @@
                         </div>
                         <div class="form-group">
                             <label for="delivered_material_date">Delivered Material Date <span class="required">*</span></label>
-                            <input type="text" id="delivered_material_date" name="delivered_material_date" value="{{ edit_rma.delivered_material_date }}" placeholder="e.g., 14-01-22" pattern="\d{2}-\d{2}-\d{2}" required>
+                            <input type="text" id="delivered_material_date" name="delivered_date" value="{{ edit_rma.delivered_material_date }}" placeholder="materiale.g., 14-01-22" pattern="\d{2}-\d{2}-\d{2}" required>
                         </div>
                         <div class="form-group full-width">
                             <label for="issues_observed">Issues Observed <span class="required">*</span></label>
@@ -112,7 +127,7 @@
                             <textarea id="emd_observation" name="emd_observation" placeholder="EMD Observation">{{ edit_rma.emd_observation }}</textarea>
                         </div>
                         <div class="form-group full-width">
-                            <label for="solutions">Solutions</label>
+                            <label for="solutions">Solutions Provided</label>
                             <textarea id="solutions" name="solutions" placeholder="Solutions provided">{{ edit_rma.solutions }}</textarea>
                         </div>
                         <div class="form-group">
@@ -125,7 +140,7 @@
                         </div>
                         <div class="form-group">
                             <label for="rma">RMA <span class="required">*</span></label>
-                            <input type="text" id="rma" name="rma" value="{{ edit_rma.rma }}" placeholder="e.g., MES-RMA-442">
+                            <input type="text" id="rma" name="rma" value="{{ edit_rma.rma }}" placeholder="e.g., MES-RMA-442" required>
                         </div>
                         <div class="form-group">
                             <label for="faulty_device_status">Faulty Device Status</label>
@@ -168,243 +183,257 @@
                         <div class="form-group">
                             <label for="month">Month <span class="required">*</span></label>
                             <input type="text" id="month" name="month" placeholder="e.g., May" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="date_of_issue">Date of Issue <span class="required">*</span></label>
+                                <input type="text" id="date_of_issue" name="date_of_issue" placeholder="e.g., 23-05-25" pattern="\d{2}-\d{2}-\d{2}" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="project">Project <span class="required">*</span></label>
+                                <input type="text" id="project" name="project" placeholder="Project Name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="location">Location <span class="required">*</span></label>
+                                <input type="text" id="location" name="location" placeholder="Location" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="si_client">SI/Client <span class="required">*</span></label>
+                                <input type="text" id="si_client" name="si_client" placeholder="SI/Client" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="product">Product <span class="required">*</span></label>
+                                <input type="text" id="product" name="product" placeholder="Product" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="device_serial_number">Device Serial Number <span class="required">*</span></label>
+                                <input type="text" id="device_serial_number" name="device_serial_number" placeholder="e.g., 22LP5T67" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="delivered_material_date">Delivered Material Date <span class="required">*</span></label>
+                                <input type="text" id="delivered_material_date" name="delivered_material_date" placeholder="e.g., 14-01-22" pattern="\d{2}-\d{2}-\d{2}" required>
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="issues_observed">Issues Observed <span class="required">*</span></label>
+                                <textarea id="issues_observed" name="issues_observed" placeholder="e.g., Touch Issue Obtained" required></textarea>
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="emd_observation">EMD Observation</label>
+                                <textarea id="emd_observation" name="emd_observation" placeholder="EMD Observation"></textarea>
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="solutions">Solutions Provided</label>
+                                <textarea id="solutions" name="solutions" placeholder="Solutions provided"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="replacement_dc_no">Replacement DC No</label>
+                                <input type="text" id="replacement_dc_no" name="replacement_dc_no" placeholder="Replacement DC No">
+                            </div>
+                            <div class="form-group">
+                                <label for="tested_by_messung_engineer">Tested By Messung Engineer</label>
+                                <input type="text" id="tested_by_messung_engineer" name="tested_by_messung_engineer" placeholder="Engineer Name">
+                            </div>
+                            <div class="form-group">
+                                <label for="rma">RMA <span class="required">*</span></label>
+                                <input type="text" id="rma" name="rma" placeholder="Auto-generated (MES-RMA-XXX)" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="faulty_device_status">Faulty Device Status</label>
+                                <input type="text" id="faulty_device_status" name="faulty_device_status" placeholder="Faulty Device Status">
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="remark">Remark</label>
+                                <textarea id="remark" name="remark" placeholder="Additional remarks"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="device_status">Device Status</label>
+                                <input type="text" id="device_status" name="device_status" placeholder="Device Status">
+                            </div>
+                            <div class="form-group">
+                                <label for="r1">R1</label>
+                                <input type="text" id="r1" name="r1" placeholder="R1">
+                            </div>
+                            <div class="form-group">
+                                <label for="r2">R2</label>
+                                <input type="text" id="r2" name="r2" placeholder="R2">
+                            </div>
+                            <div class="form-group">
+                                <label for="r3">R3</label>
+                                <input type="text" id="r3" name="r3" placeholder="R3">
+                            </div>
+                            <div class="form-group">
+                                <label for="customer_email">Customer Email <span class="required">*</span></label>
+                                <input type="email" id="customer_email" name="customer_email" placeholder="customer@example.com" required>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label for="date_of_issue">Date of Issue <span class="required">*</span></label>
-                            <input type="text" id="date_of_issue" name="date_of_issue" placeholder="e.g., 23-05-25" pattern="\d{2}-\d{2}-\d{2}" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="project">Project <span class="required">*</span></label>
-                            <input type="text" id="project" name="project" placeholder="Project Name" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="location">Location <span class="required">*</span></label>
-                            <input type="text" id="location" name="location" placeholder="Location" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="si_client">SI/Client <span class="required">*</span></label>
-                            <input type="text" id="si_client" name="si_client" placeholder="SI/Client" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="product">Product <span class="required">*</span></label>
-                            <input type="text" id="product" name="product" placeholder="Product" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="device_serial_number">Device Serial Number <span class="required">*</span></label>
-                            <input type="text" id="device_serial_number" name="device_serial_number" placeholder="e.g., 22LP5T67" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="delivered_material_date">Delivered Material Date <span class="required">*</span></label>
-                            <input type="text" id="delivered_material_date" name="delivered_material_date" placeholder="e.g., 14-01-22" pattern="\d{2}-\d{2}-\d{2}" required>
-                        </div>
-                        <div class="form-group full-width">
-                            <label for="issues_observed">Issues Observed <span class="required">*</span></label>
-                            <textarea id="issues_observed" name="issues_observed" placeholder="e.g., Touch Issue Obtained" required></textarea>
-                        </div>
-                        <div class="form-group full-width">
-                            <label for="emd_observation">EMD Observation</label>
-                            <textarea id="emd_observation" name="emd_observation" placeholder="EMD Observation"></textarea>
-                        </div>
-                        <div class="form-group full-width">
-                            <label for="solutions">Solutions</label>
-                            <textarea id="solutions" name="solutions" placeholder="Solutions provided"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="replacement_dc_no">Replacement DC No</label>
-                            <input type="text" id="replacement_dc_no" name="replacement_dc_no" placeholder="Replacement DC No">
-                        </div>
-                        <div class="form-group">
-                            <label for="tested_by_messung_engineer">Tested By Messung Engineer</label>
-                            <input type="text" id="tested_by_messung_engineer" name="tested_by_messung_engineer" placeholder="Engineer Name">
-                        </div>
-                        <div class="form-group">
-                            <label for="rma">RMA <span class="required">*</span></label>
-                            <input type="text" id="rma" name="rma" placeholder="Auto-generated (MES-RMA-XXX)" readonly>
-                        </div>
-                        <div class="form-group">
-                            <label for="faulty_device_status">Faulty Device Status</label>
-                            <input type="text" id="faulty_device_status" name="faulty_device_status" placeholder="Faulty Device Status">
-                        </div>
-                        <div class="form-group full-width">
-                            <label for="remark">Remark</label>
-                            <textarea id="remark" name="remark" placeholder="Additional remarks"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="device_status">Device Status</label>
-                            <input type="text" id="device_status" name="device_status" placeholder="Device Status">
-                        </div>
-                        <div class="form-group">
-                            <label for="r1">R1</label>
-                            <input type="text" id="r1" name="r1" placeholder="R1">
-                        </div>
-                        <div class="form-group">
-                            <label for="r2">R2</label>
-                            <input type="text" id="r2" name="r2" placeholder="R2">
-                        </div>
-                        <div class="form-group">
-                            <label for="r3">R3</label>
-                            <input type="text" id="r3" name="r3" placeholder="R3">
-                        </div>
-                        <div class="form-group">
-                            <label for="customer_email">Customer Email <span class="required">*</span></label>
-                            <input type="email" id="customer_email" name="customer_email" placeholder="customer@example.com" required>
-                        </div>
+                        <button type="submit" class="submit-btn"><i class="fas fa-paper-plane"></i> Submit RMA</button>
+                    </form>
+                    <p id="response" class="response-message"></p>
+                    <div class="import-section">
+                        <h3>Import RMA Data</h3>
+                        <form id="importForm" action="/import_excel" method="POST" enctype="multipart/form-data">
+                            <input type="file" id="excelFile" name="excel_file" accept=".xlsx" required>
+                            <button type="submit" class="import-btn"><i class="fas fa-upload"></i> Import Excel</button>
+                        </form>
+                        <p id="importResponse" class="response-message"></p>
                     </div>
-                    <button type="submit" class="submit-btn"><i class="fas fa-paper-plane"></i> Submit RMA</button>
-                </form>
-                <p id="response" class="response-message"></p>
-            </section>
-            <section class="card search-section">
-                <h2>Search RMA Requests</h2>
-                <form id="searchForm" action="/search" method="POST" class="search-form">
-                    <div class="form-group">
-                        <label for="search_term">Search Term <span class="required">*</span></label>
-                        <input type="text" id="search_term" name="search_term" placeholder="Enter RMA, Device Serial Number, or SI/Client" value="{{ search_term|default('') }}" required>
+                </section>
+                <section class="card search-section">
+                    <h2>Search RMA Requests</h2>
+                    <form id="searchForm" action="/search" method="POST" class="search-form">
+                        <div class="form-group">
+                            <label for="search_term">Search Term <span class="required">*</span></label>
+                            <input type="text" id="search_term" name="search_term" placeholder="Enter RMA, Device Serial Number, or SI/Client" value="{{ search_term|default('') }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="search_type">Search By</label>
+                            <select id="search_type" name="search_type">
+                                <option value="rma" {% if search_type == 'rma' %}selected{% endif %}>RMA</option>
+                                <option value="device_serial_number" {% if search_type == 'device_serial_number' %}selected{% endif %}>Device Serial Number</option>
+                                <option value="si_client" {% if search_type == 'si_client' %}selected{% endif %}>SI/Client</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="search-btn"><i class="fas fa-search"></i> Search</button>
+                    </form>
+                </section>
+                <section class="card table-section">
+                    <h2>Search Results</h2>
+                    {% if search_results %}
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Month</th>
+                                    <th>Date of Issue</th>
+                                    <th>Project</th>
+                                    <th>Location</th>
+                                    <th>SI/Client</th>
+                                    <th>Product</th>
+                                    <th>Device Serial Number</th>
+                                    <th>Delivered Material Date</th>
+                                    <th>Issues Observed</th>
+                                    <th>EMD Observation</th>
+                                    <th>Solutions</th>
+                                    <th>Replacement DC No</th>
+                                    <th>Tested By</th>
+                                    <th>RMA</th>
+                                    <th>Faulty Device Status</th>
+                                    <th>Remark</th>
+                                    <th>Device Status</th>
+                                    <th>R1</th>
+                                    <th>R2</th>
+                                    <th>R3</th>
+                                    <th>Token No</th>
+                                    <th>Contact Email</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for req in search_results %}
+                                <tr>
+                                    <td>{{ req[1] }}</td>
+                                    <td>{{ req[2] }}</td>
+                                    <td>{{ req[3] }}</td>
+                                    <td>{{ req[4] }}</td>
+                                    <td>{{ req[5] }}</td>
+                                    <td>{{ req[6] }}</td>
+                                    <td>{{ req[7] }}</td>
+                                    <td>{{ req[8] }}</td>
+                                    <td>{{ req[9] }}</td>
+                                    <td>{{ req[10] }}</td>
+                                    <td>{{ req[11] }}</td>
+                                    <td>{{ req[12] }}</td>
+                                    <td>{{ req[13] }}</td>
+                                    <td>{{ req[14] }}</td>
+                                    <td>{{ req[15] }}</td>
+                                    <td>{{ req[16] }}</td>
+                                    <td>{{ req[17] }}</td>
+                                    <td>{{ req[18] }}</td>
+                                    <td>{{ req[19] }}</td>
+                                    <td>{{ req[20] }}</td>
+                                    <td>{{ req[21] }}</td>
+                                    <td>{{ req[22] }}</td>
+                                    <td>
+                                        <a href="/edit_rma/{{ req[21] }}"><button class="edit-btn"><i class="fas fa-edit"></i> Edit</button></a>
+                                        <button class="delete-btn" onclick="deleteRma('{{ req[21] }}')"><i class="fas fa-trash"></i> Delete</button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
-                    <div class="form-group">
-                        <label for="search_type">Search By</label>
-                        <select id="search_type" name="search_type">
-                            <option value="rma" {% if search_type == 'rma' %}selected{% endif %}>RMA</option>
-                            <option value="device_serial_number" {% if search_type == 'device_serial_number' %}selected{% endif %}>Device Serial Number</option>
-                            <option value="si_client" {% if search_type == 'si_client' %}selected{% endif %}>SI/Client</option>
-                        </select>
+                    {% else %}
+                    <p class="error">{{ error }}</p>
+                    {% endif %}
+                </section>
+                <section class="full">
+                    <h2>Full RMA Records</h2>
+                    <a href="/export_excel" class="export-button">
+                        <button type="submit" class="export-btn"><i class="fas fa-file-export"></i> Export to Excel <span class="spacer"></span></button>
+                    </a>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Month</th>
+                                    <th>Date of Issue</th>
+                                    <th>Project</th>
+                                    <th>Location</th>
+                                    <th>SI/Client</th>
+                                    <th>Product</th>
+                                    <th>Device Serial Number</th>
+                                    <th>Delivered Material Date</th>
+                                    <th>Issues Observed</th>
+                                    <th>EMD Observation</th>
+                                    <th>Solutions</th>
+                                    <th>Replacement DC No</th>
+                                    <th>Tested By</th>
+                                    <th>RMA</th>
+                                    <th>Faulty Device Status</th>
+                                    <th>Remark</th>
+                                    <th>Device Status</th>
+                                    <th>R1</th>
+                                    <th>R2</th>
+                                    <th>R3</th>
+                                    <th>Token No</th>
+                                    <th>Contact Email</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for req in requests %}
+                                <tr>
+                                    <td>{{ req[1] }}</td>
+                                    <td>{{ req[2] }}</td>
+                                    <td>{{ req[3] }}</td>
+                                    <td>{{ req[4] }}</td>
+                                    <td>{{ req[5] }}</td>
+                                    <td>{{ req[6] }}</td>
+                                    <td>{{ req[7] }}</td>
+                                    <td>{{ req[8] }}</td>
+                                    <td>{{ req[9] }}</td>
+                                    <td>{{ req[10] }}</td>
+                                    <td>{{ req[11] }}</td>
+                                    <td>{{ req[12] }}</td>
+                                    <td>{{ req[13] }}</td>
+                                    <td>{{ req[14] }}</td>
+                                    <td>{{ req[15] }}</td>
+                                    <td>{{ req[16] }}</td>
+                                    <td>{{ req[17] }}</td>
+                                    <td>{{ req[18] }}</td>
+                                    <td>{{ req[19] }}</td>
+                                    <td>{{ req[20] }}</td>
+                                    <td>{{ req[21] }}</td>
+                                    <td>{{ req[22] }}</td>
+                                    <td>
+                                        <a href="/edit_rma/{{ req[21] }}"><button class="edit-btn"><i class="fas fa-edit"></i> Edit</button></a>
+                                        <button class="delete-btn" onclick="deleteRma('{{ req[21] }}')"><i class="fas fa-trash"></i> Delete</button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
-                    <button type="submit" class="search-btn"><i class="fas fa-search"></i> Search</button>
-                </form>
-            </section>
-            <section class="card table-section">
-                <h2>Search Results</h2>
-                {% if search_results %}
-                <div class="table-wrapper">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Month</th>
-                                <th>Date of Issue</th>
-                                <th>Project</th>
-                                <th>Location</th>
-                                <th>SI/Client</th>
-                                <th>Product</th>
-                                <th>Device Serial Number</th>
-                                <th>Delivered Material Date</th>
-                                <th>Issues Observed</th>
-                                <th>EMD Observation</th>
-                                <th>Solutions</th>
-                                <th>Replacement DC No</th>
-                                <th>Tested By</th>
-                                <th>RMA</th>
-                                <th>Faulty Device Status</th>
-                                <th>Remark</th>
-                                <th>Device Status</th>
-                                <th>R1</th>
-                                <th>R2</th>
-                                <th>R3</th>
-                                <th>Token No</th>
-                                <th>Contact Email</th>
-                                <th>Edit</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for req in search_results %}
-                            <tr>
-                                <td>{{ req[1] }}</td>
-                                <td>{{ req[2] }}</td>
-                                <td>{{ req[3] }}</td>
-                                <td>{{ req[4] }}</td>
-                                <td>{{ req[5] }}</td>
-                                <td>{{ req[6] }}</td>
-                                <td>{{ req[7] }}</td>
-                                <td>{{ req[8] }}</td>
-                                <td>{{ req[9] }}</td>
-                                <td>{{ req[10] }}</td>
-                                <td>{{ req[11] }}</td>
-                                <td>{{ req[12] }}</td>
-                                <td>{{ req[13] }}</td>
-                                <td>{{ req[14] }}</td>
-                                <td>{{ req[15] }}</td>
-                                <td>{{ req[16] }}</td>
-                                <td>{{ req[17] }}</td>
-                                <td>{{ req[18] }}</td>
-                                <td>{{ req[19] }}</td>
-                                <td>{{ req[20] }}</td>
-                                <td>{{ req[21] }}</td>
-                                <td>{{ req[22] }}</td>
-                                <td><a href="/edit_rma/{{ req[21] }}"><button class="edit-btn"><i class="fas fa-edit"></i> Edit</button></a></td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                {% else %}
-                <p class="error">{{ error }}</p>
-                {% endif %}
-            </section>
-            <section class="full">
-                <h2>Full RMA Records</h2>
-                <a href="/export_excel" class="export-button">
-                    <button type="submit" class="export-btn"><i class="fas fa-file-export"></i> Export to Excel <span class="spacer"></span></button>
-                </a>
-                <div class="table-wrapper">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Month</th>
-                                <th>Date of Issue</th>
-                                <th>Project</th>
-                                <th>Location</th>
-                                <th>SI/Client</th>
-                                <th>Product</th>
-                                <th>Device Serial Number</th>
-                                <th>Delivered Material Date</th>
-                                <th>Issues Observed</th>
-                                <th>EMD Observation</th>
-                                <th>Solutions</th>
-                                <th>Replacement DC No</th>
-                                <th>Tested By</th>
-                                <th>RMA</th>
-                                <th>Faulty Device Status</th>
-                                <th>Remark</th>
-                                <th>Device Status</th>
-                                <th>R1</th>
-                                <th>R2</th>
-                                <th>R3</th>
-                                <th>Token No</th>
-                                <th>Contact Email</th>
-                                <th>Edit</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for req in requests %}
-                            <tr>
-                                <td>{{ req[1] }}</td>
-                                <td>{{ req[2] }}</td>
-                                <td>{{ req[3] }}</td>
-                                <td>{{ req[4] }}</td>
-                                <td>{{ req[5] }}</td>
-                                <td>{{ req[6] }}</td>
-                                <td>{{ req[7] }}</td>
-                                <td>{{ req[8] }}</td>
-                                <td>{{ req[9] }}</td>
-                                <td>{{ req[10] }}</td>
-                                <td>{{ req[11] }}</td>
-                                <td>{{ req[12] }}</td>
-                                <td>{{ req[13] }}</td>
-                                <td>{{ req[14] }}</td>
-                                <td>{{ req[15] }}</td>
-                                <td>{{ req[16] }}</td>
-                                <td>{{ req[17] }}</td>
-                                <td>{{ req[18] }}</td>
-                                <td>{{ req[19] }}</td>
-                                <td>{{ req[20] }}</td>
-                                <td>{{ req[21] }}</td>
-                                <td>{{ req[22] }}</td>
-                                <td><a href="/edit_rma/{{ req[21] }}"><button class="edit-btn"><i class="fas fa-edit"></i> Edit</button></a></td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </section>
+                </section>
             {% endif %}
         </main>
         <footer>
@@ -412,9 +441,10 @@
         </footer>
     </div>
     <script>
+        // Password Check
         function checkPassword() {
             const password = document.getElementById('passwordInput').value;
-            const correctPassword = 'Ourican@RMA';
+            const correctPassword = 'Ourican@RMA1981';
             const errorMessage = document.getElementById('errorMessage');
             if (password === correctPassword) {
                 document.getElementById('passwordPrompt').style.display = 'none';
@@ -425,6 +455,10 @@
             }
         }
 
+        // Attach event listener to password submit button
+        document.getElementById('passwordSubmit').addEventListener('click', checkPassword);
+
+        // Allow Enter key to submit password
         document.getElementById('passwordInput').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 checkPassword();
@@ -432,7 +466,7 @@
         });
 
         // RMA Form Submission
-        document.getElementById('rmaForm')?.addEventListener('submit', async (e) {
+        document.getElementById('rmaForm')?.addEventListener('submit', async (e) => {
             e.preventDefault();
             const submitBtn = e.target.querySelector('.submit-btn');
             submitBtn.disabled = true;
@@ -489,6 +523,53 @@
             }
         });
 
+        // Import Excel Submission
+        document.getElementById('importForm')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const importBtn = e.target.querySelector('.import-btn');
+            importBtn.disabled = true;
+            importBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Importing...';
+            const importResponseEl = document.getElementById('importResponse');
+            try {
+                const formData = new FormData(e.target);
+                const response = await fetch('/import_excel', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+                importResponseEl.innerText = result.message;
+                importResponseEl.classList.add(result.success ? 'success' : 'error');
+                if (result.success) {
+                    e.target.reset();
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+                }
+            } catch (error) {
+                importResponseEl.innerText = 'Error importing Excel. Please try again.';
+                importResponseEl.classList.add('error');
+            } finally {
+                importBtn.disabled = false;
+                importBtn.innerHTML = '<i class="fas fa-upload"></i> Import Excel';
+            }
+        });
+
+        // Delete RMA
+        async function deleteRma(token) {
+            if (confirm(`Are you sure you want to delete RMA ${token}?`)) {
+                try {
+                    const response = await fetch(`/delete_rma/${token}`, {
+                        method: 'POST'
+                    });
+                    const result = await response.json();
+                    alert(result.message);
+                    window.location.reload();
+                } catch (error) {
+                    alert('Error deleting RMA. Please try again.');
+                }
+            }
+        }
+
         // Export Button Spinner
         document.querySelector('.export-button')?.addEventListener('click', (e) => {
             const btn = e.target.closest('button');
@@ -498,6 +579,11 @@
                 spacer.style.display = 'none';
             }, 2000);
         });
+
+        // Debug any errors
+        window.onerror = function(message, source, lineno, colno, error) {
+            console.error(`Error: ${message} at ${source}:${lineno}:${colno}`);
+        };
     </script>
 </body>
 </html>
