@@ -1,0 +1,193 @@
+/* static/style.css */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    background-color: #f4f4f4;
+}
+
+header {
+    background-color: #003087;
+    color: white;
+    padding: 20px;
+    text-align: center;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+.logo {
+    max-height: 80px;
+}
+
+.company-info h1 {
+    font-size: 24px;
+    margin-bottom: 5px;
+}
+
+.company-info h3 {
+    font-size: 16px;
+    font-weight: normal;
+}
+
+main {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 0 20px;
+}
+
+.card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.form-section h2, .search-section h2, .table-section h2 {
+    margin-bottom: 20px;
+    color: #003087;
+}
+
+.rma-form, .search-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    width: 100%;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-group label {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.form-group label .required {
+    color: red;
+}
+
+.form-group input, .form-group textarea, .form-group select {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.submit-btn, .search-btn, .export-btn {
+    background-color: #003087;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.submit-btn:hover, .search-btn:hover, .export-btn:hover {
+    background-color: #0051ba;
+}
+
+.response-message {
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 4px;
+}
+
+.response-message.success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.response-message.error {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+}
+
+th {
+    background-color: #003087;
+    color: white;
+}
+
+tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.no-results {
+    color: #721c24;
+    font-style: italic;
+}
+
+.export-button {
+    display: inline-block;
+    margin-bottom: 20px;
+}
+
+.spinner {
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #003087;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+footer {
+    text-align: center;
+    padding: 20px;
+    background-color: #003087;
+    color: white;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+}
