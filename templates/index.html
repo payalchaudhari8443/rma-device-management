@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -149,7 +148,7 @@
                         </div>
                         <div class="form-group">
                             <label for="rma">RMA <span class="required">*</span></label>
-                            <input type="text" id="rma" name="rma" value="{{ edit_rma.rma }}" placeholder="e.g., MES-RMA-490" required>
+                            <input type="text" id="rma" name="rma" value="{{ edit_rma.rma }}" placeholder="e.g., MES-RMA-442" required>
                         </div>
                         <div class="form-group">
                             <label for="faulty_device_status">Faulty Device Status</label>
@@ -303,7 +302,6 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>Token No</th>
                                 <th>Month</th>
                                 <th>Date of Issue</th>
                                 <th>Project</th>
@@ -324,6 +322,7 @@
                                 <th>R1</th>
                                 <th>R2</th>
                                 <th>R3</th>
+                                <th>Token No</th>
                                 <th>Contact Email</th>
                                 <th>Actions</th>
                             </tr>
@@ -331,7 +330,6 @@
                         <tbody>
                             {% for req in search_results %}
                             <tr>
-                                <td>{{ req[21] }}</td>
                                 <td>{{ req[1] }}</td>
                                 <td>{{ req[2] }}</td>
                                 <td>{{ req[3] }}</td>
@@ -352,6 +350,7 @@
                                 <td>{{ req[18] }}</td>
                                 <td>{{ req[19] }}</td>
                                 <td>{{ req[20] }}</td>
+                                <td>{{ req[21] }}</td>
                                 <td>{{ req[22] }}</td>
                                 <td>
                                     <a href="/edit_rma/{{ req[21] }}"><button class="edit-btn"><i class="fas fa-edit"></i> Edit</button></a>
@@ -378,7 +377,6 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>Token No</th>
                                 <th>Month</th>
                                 <th>Date of Issue</th>
                                 <th>Project</th>
@@ -399,6 +397,7 @@
                                 <th>R1</th>
                                 <th>R2</th>
                                 <th>R3</th>
+                                <th>Token No</th>
                                 <th>Contact Email</th>
                                 <th>Actions</th>
                             </tr>
@@ -406,7 +405,6 @@
                         <tbody>
                             {% for req in requests %}
                             <tr>
-                                <td>{{ req[21] }}</td>
                                 <td>{{ req[1] }}</td>
                                 <td>{{ req[2] }}</td>
                                 <td>{{ req[3] }}</td>
@@ -427,6 +425,7 @@
                                 <td>{{ req[18] }}</td>
                                 <td>{{ req[19] }}</td>
                                 <td>{{ req[20] }}</td>
+                                <td>{{ req[21] }}</td>
                                 <td>{{ req[22] }}</td>
                                 <td>
                                     <a href="/edit_rma/{{ req[21] }}"><button class="edit-btn"><i class="fas fa-edit"></i> Edit</button></a>
@@ -482,7 +481,7 @@
             const responseEl = document.getElementById('response');
             try {
                 const formData = new FormData(e.target);
-                const response = await fetch('/submit_rma/', {
+                const response = await fetch('/submit_rma', {
                     method: 'POST',
                     body: formData
                 });
